@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Shadow Librarian</title>
+    <meta name="description"
+        content="Incarnez le Bibliothécaire de l'Ombre. Copiez, convertissez et réécrivez la réalité dans ce jeu incrémental narratif sombre.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tabs.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/narrative.css">
+    <link rel="stylesheet" href="css/archive_fix.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="image/favicon.png">
+</head>
+
+<body>
+    <div class="scanlines"></div>
+    <div id="game-container">
+        <header>
+            <h1>THE SHADOW LIBRARIAN</h1>
+            <div id="play-timer" title="Temps écoulé">00:00:00</div>
+        </header>
+
+        <main id="dashboard-layout">
+            <!-- Left Column: Resources -->
+            <aside id="col-left" class="panel-column">
+                <div class="panel-box">
+                    <div class="panel-title">Ressources</div>
+                    <div class="resource-list">
+                        <div class="resource-item">
+                            <img src="image/ink_icon.png" alt="Encre" class="icon-res">
+                            <div class="res-info">
+                                <span class="res-label">Encre</span>
+                                <span id="ink-count" class="res-value">0</span>
+                                <div id="ink-rate" style="font-size: 0.8rem; color: #888; margin-top:2px;">+0.0/s</div>
+                            </div>
+                        </div>
+                        <div class="resource-item">
+                            <img src="image/pages_icon.png" alt="Pages" class="icon-res">
+                            <div class="res-info">
+                                <span class="res-label">Pages</span>
+                                <span id="page-count" class="res-value">0</span>
+                                <div id="page-rate" style="font-size: 0.8rem; color: #888; margin-top:2px;">+0.0/s</div>
+                            </div>
+                        </div>
+                        <div class="resource-item" id="res-knowledge-container"
+                            style="display:none; border-color: var(--color-highlight);">
+                            <img src="image/forbidden_knowledge.png" class="icon-res" alt="Savoir Interdit">
+                            <div class="res-info">
+                                <span class="res-label" style="color:var(--color-highlight);">Savoir Interdit</span>
+                                <span id="knowledge-count" class="res-value" style="color:#DD2222;">0</span>
+                                <div id="knowledge-bonus" style="font-size: 0.8rem; color: #AA0000; margin-top:2px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Archives Panel (Moved to bottom left) -->
+                <div id="panel-archives" class="panel-box hidden">
+                    <div class="panel-title" style="font-style: italic;">Archives</div>
+                    <div id="archive-list" class="scrolling-list" style="max-height: 200px; overflow-y: auto;">
+                        <!-- Artifacts injected here -->
+                        <p
+                            style="text-align:center; color: #888888; font-style:italic; margin-top:20px; font-size: 0.8rem;">
+                            "Ce qui est trouvé ne peut être désappris."
+                        </p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center Column: Narrative & Main Actions -->
+            <section id="col-center" class="panel-column">
+                <div class="panel-box narrative-box">
+                    <div id="narrative-log">
+                        <p class="story-text">Vous êtes assis dans la pénombre. Une plume est posée devant vous.</p>
+                    </div>
+                </div>
+
+                <div class="panel-box actions-box">
+                    <button id="btn-generate-ink" class="ps1-btn big-btn">
+                        <span class="btn-text">Tremper la plume</span>
+                        <small class="btn-subtext">+1 Encre</small>
+                    </button>
+                    <button id="btn-create-page" class="ps1-btn big-btn" disabled>
+                        <span class="btn-text">Relier une page</span>
+                        <small class="btn-subtext">10 Encre</small>
+                    </button>
+                    <button id="btn-prestige" class="ps1-btn big-btn hidden"
+                        style="border-color: #AA0000; color: #AA0000;">
+                        <span class="btn-text">Le Grand Incendie</span>
+                        <small class="btn-subtext">Brûler la bibliothèque</small>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Right Column: Upgrades & Tools -->
+            <aside id="col-right" class="panel-column">
+                <div class="panel-box upgrades-box">
+                    <div class="panel-title">
+                        <div id="tabs-container">
+                            <button class="tab-btn active" data-tab="upgrades">Atelier</button>
+                            <button class="tab-btn" data-tab="research" id="tab-research"
+                                style="display:none;">Recherche</button>
+                            <button class="tab-btn" data-tab="architect" id="tab-architect"
+                                style="display:none; color: var(--color-highlight);">Architecte</button>
+
+                        </div>
+                    </div>
+
+                    <div id="panel-content-upgrades" class="panel-content">
+                        <div id="upgrade-list">
+                            <!-- Upgrades injected here -->
+                        </div>
+                    </div>
+
+                    <div id="panel-content-research" class="panel-content hidden">
+                        <div id="research-list">
+                            <!-- Research injected here -->
+                        </div>
+                    </div>
+
+                    <div id="panel-content-architect" class="panel-content hidden">
+                        <div id="architect-list">
+                            <!-- Architect actions/prestige here -->
+                        </div>
+                    </div>
+
+                </div>
+            </aside>
+        </main>
+
+        <div id="debug-panel" class="hidden panel-box">
+            <div class="panel-title" style="display:flex; justify-content:space-between; align-items:center;">
+                <span>MENU DE TRICHE (DEBUG)</span>
+                <span id="close-debug" style="cursor:pointer; font-weight:bold;">[X]</span>
+            </div>
+            <div class="debug-content">
+                <div class="debug-row">
+                    <input type="number" id="debug-ink-input" value="10000" class="debug-input">
+                    <button id="debug-ink" class="ps1-btn debug-btn">Ajouter Encre</button>
+                </div>
+                <div class="debug-row">
+                    <input type="number" id="debug-pages-input" value="1000" class="debug-input">
+                    <button id="debug-pages" class="ps1-btn debug-btn">Ajouter Pages</button>
+                </div>
+                <div class="debug-row">
+                    <input type="number" id="debug-knowledge-input" value="1" class="debug-input">
+                    <button id="debug-knowledge" class="ps1-btn debug-btn">Ajouter Savoir</button>
+                </div>
+            </div>
+        </div>
+
+        <footer style="display:flex; justify-content: space-between; align-items: center; padding: 5px 10px;">
+            <button id="btn-open-achievements" class="ps1-btn small-btn"
+                style="width: 24px; height: 24px; padding: 0; display: inline-flex; justify-content: center; align-items: center; font-size: 0.8em;">α</button>
+            <span style="margin-left: 10px; margin-right: auto;">v0.3 - L'Architecte</span>
+
+
+
+            <button id="btn-save-manager" class="ps1-btn small-btn"
+                style="margin-left: 10px; width: 24px; height: 24px; padding: 0; display: inline-flex; justify-content: center; align-items: center; font-size: 0.8em;">σ</button>
+            <button id="btn-reset" class="ps1-btn small-btn"
+                style="margin-left: 5px; height: 24px; padding: 0 10px; display: inline-flex; justify-content: center; align-items: center; font-size: 0.8em; background-color: #500;">Reset
+                Save</button>
+            <button id="btn-toggle-debug" class="ps1-btn small-btn"
+                style="margin-left: 5px; width: 24px; height: 24px; padding: 0; display: inline-flex; justify-content: center; align-items: center; font-size: 0.8em; opacity: 0.3;">δ</button>
+        </footer>
+    </div>
+
+    <!-- Achievement Modal -->
+    <div id="achievements-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="width: 600px; max-width: 90vw;">
+            <div class="panel-title"
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size: 1.5rem;">
+                <span>SUCCÈS</span>
+                <span id="btn-close-achievements" style="cursor:pointer; font-weight:bold;">[X]</span>
+            </div>
+
+            <div id="achievement-progress-container"
+                style="padding: 10px; border-bottom: 1px solid #444; margin-bottom: 15px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span>Progression Globale</span>
+                    <span id="achievement-percent">0%</span>
+                </div>
+                <div style="background:#222; height:15px; border:1px solid #444;">
+                    <div id="achievement-bar" style="background:gold; height:100%; width:0%; transition: width 0.5s;">
+                    </div>
+                </div>
+            </div>
+
+            <div id="achievement-list" class="scrolling-list"
+                style="max-height: 50vh; overflow-y: auto; padding-right: 15px;">
+                <!-- Achievements here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div id="event-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 id="event-title">Titre Événement</h2>
+            <p id="event-desc">Description de l'événement.</p>
+            <div id="event-options" class="modal-options">
+                <!-- Buttons injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Manager Modal -->
+    <div id="save-manager-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="width: 500px; max-width: 90vw;">
+            <div class="panel-title"
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size: 1.5rem;">
+                <span>SAUVEGARDE</span>
+                <span id="btn-close-save-manager" style="cursor:pointer; font-weight:bold;">[X]</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <p style="margin:0; font-size:0.9rem; color:#888;">Copiez le code ci-dessous pour sauvegarder, ou
+                    collez-en un pour restaurer une partie.</p>
+                <textarea id="save-export-area" rows="6" readonly
+                    style="width:100%; background:#111; color:#AA0000; border:1px solid #444; font-family: monospace; padding:5px; resize:none;"></textarea>
+
+                <div style="display:flex; gap:10px;">
+                    <button id="btn-copy-save" class="ps1-btn" style="flex:1;">Copier (Export)</button>
+                    <button id="btn-import-save" class="ps1-btn" style="flex:1;">Importer (Coller)</button>
+                </div>
+                <div id="save-notification" style="color: gold; text-align: center; height: 1.2em; font-size:0.9em;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/narrative.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/intro.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
